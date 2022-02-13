@@ -8,8 +8,7 @@ type gNode = char * (int * int)
 let node_map = Hashtbl.create 10
 
 (* Shortcut function for getting the graphical node from the map *)
-let get_node bdd_r = 
-	Hashtbl.find node_map bdd_r
+let get_node bdd_r = Hashtbl.find node_map bdd_r
 
 (* Shortcut function for adding a node to the map *)
 let new_node bdd_r node =
@@ -25,6 +24,31 @@ let _ =
 let width = size_x ()
 let height = size_y ()
 
+(* Draws a dotted line from current drawing position to the position given *)
+let dotted_lineto x y =
+	(* Magnitude of direction vector *)
+	let g = Float.sqrt (float_of_int (x - current_x ()) ** 2. +.
+                      float_of_int (y - current_y ()) ** 2.)
+	in
+	(* Direction vector normalized and multiplied by 5 *)
+	let (dx, dy) = (int_of_float (5. *. float_of_int (x - current_x ()) /. g),
+	    						int_of_float (5. *. float_of_int (y - current_y ()) /. g))
+	in
+	(* Signs to test if the end of the line has been reached *)
+	let sign_x = if x > current_x () then (>) else (<) in
+	let sign_y = if y > current_y () then (>) else (<) in
+	(* Draws the dotted segments specified by the coordinates *)
+	let rec aux (x1, y1) (x2, y2) =
+		if sign_x x x2 && sign_y y y2 then
+  		(moveto x1 y1;
+  		lineto x2 y2;
+  		aux (x2 + dx, y2 + dy) (x2 + 2*dx, y2 + 2*dy) )
+		else 
+			()
+	in
+		aux (current_x (), current_y ()) (current_x () + dx, current_y () + dy)
+		
+
 (* Draws a graphical node on the screen *)
 let draw_node node =
 	match node with 
@@ -39,7 +63,7 @@ let connect_nodes p_xy c1_xy  c2_xy =
 	moveto ((fst p_xy) - 11) ((snd p_xy) - 11);
 	lineto (fst c1_xy) ((snd c1_xy) + 15);
 	moveto ((fst p_xy) + 11) ((snd p_xy) - 11);
-	lineto (fst c2_xy) ((snd c2_xy) + 15)
+	dotted_lineto (fst c2_xy) ((snd c2_xy) + 15)
 	
 (* Recursively draws a BDD at a specific location on the screen. *)
 (* If the BDD has already been drawn elsewhere then we return the location *)
