@@ -72,12 +72,17 @@ let rec draw_bdd bdd_r (x,y) =
 				(draw_bdd b1 (((fst loc) - 50), ((snd loc) - 50)))
 				(draw_bdd b2 (((fst loc) + 50), ((snd loc) - 50)));
 			loc
-
-let f1 = BOper(BOper(Symbol 'P', Implies, Symbol 'R'), And, BOper(Symbol 'Q', Implies, Symbol 'R'))
-let b1 = create_bdd f1
-
-let _ = 
-	Printf.printf "%s\n" (string_of_bdd b1) ;
-	let _ = draw_bdd b1 (width / 2 , height - 50) in
-	Unix.sleep 5
-	
+			
+(* Main function. Draws bdd and exits when Q is pressed *)
+let run bdd_r = 
+	Printf.printf "%s\n" (string_of_bdd bdd_r) ;
+	let _ = draw_bdd bdd_r (width / 2 , height - 50) in
+	loop_at_exit [Key_pressed] 
+		(fun s ->
+			if s.keypressed then
+				match s.key with
+				| 'q' -> raise Exit
+				|  _ -> () 
+			else 
+				()
+		)
