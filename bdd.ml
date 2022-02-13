@@ -24,10 +24,13 @@ let bdd_map =
   Hashtbl.add h (Leaf true) (ref (Leaf true));
   Hashtbl.add h (Leaf false) (ref (Leaf false));
   h
-
  
 let get_ref bdd = 
   Hashtbl.find bdd_map bdd
+
+let new_bdd bdd =
+  Hashtbl.add bdd_map bdd (ref bdd);
+  get_ref bdd
 
 let string_of_op = function 
   | Or -> "v"
@@ -48,9 +51,7 @@ let rec eval_not bdd =
   | Leaf true -> get_ref (Leaf false)
   | Leaf false -> get_ref (Leaf true)
   | Node (c1, b1, b2) -> 
-    let n = Node (c1, eval_not b1, eval_not b2) in
-    Hashtbl.add bdd_map n (ref n);
-    ref n
+    new_bdd (Node (c1, eval_not b1, eval_not b2))
 
 let eval_op b bdd op =
   match op with 
@@ -90,17 +91,11 @@ let rec merge_bdds b1 op b2 =
     | Leaf false -> eval_op false b2 op
     | Node (c2, b21, b22) -> 
       if c1 < c2 then
-        let n = Node (c1, merge_bdds b11 op b2, merge_bdds b12 op b2) in
-        Hashtbl.add bdd_map n (ref n);
-        get_ref n
+        new_bdd (Node (c1, merge_bdds b11 op b2, merge_bdds b12 op b2))
       else if c2 > c1 then
-        let n = Node (c2, merge_bdds b21 op b1, merge_bdds b22 Or b1) in
-        Hashtbl.add bdd_map n (ref n);
-        get_ref n
+        new_bdd (Node (c2, merge_bdds b21 op b1, merge_bdds b22 Or b1))
       else 
-        let n = Node (c1, merge_bdds b11 op b21, merge_bdds b12 op b22) in
-        Hashtbl.add bdd_map n (ref n);
-        get_ref n
+        new_bdd (Node (c1, merge_bdds b11 op b21, merge_bdds b12 op b22))
     )
 
 let rec create_bdd formula =
@@ -108,9 +103,7 @@ let rec create_bdd formula =
   | True -> get_ref (Leaf true)
   | False -> get_ref (Leaf false)
   | Symbol c -> 
-    let n = Node (c, get_ref (Leaf true), get_ref (Leaf false)) in
-    Hashtbl.add bdd_map n (ref n);
-    get_ref n
+    new_bdd (Node (c, get_ref (Leaf true), get_ref (Leaf false)))
   | UOper (Not, f) -> eval_not (create_bdd f)
   | BOper (f1, op, f2) -> 
     (match f1 with 
