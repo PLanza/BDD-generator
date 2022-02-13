@@ -18,6 +18,13 @@ type formula =
 type bdd =
   | Leaf of bool
   | Node of char * bdd * bdd
+ 
+let string_of_op = function 
+  | Or -> "v"
+  | And -> "^"
+  | Implies -> "->"
+  | Iff -> "<->"
+  | Xor -> "x"
 
 let rec string_of_bdd bdd =
   match bdd with 
@@ -25,12 +32,6 @@ let rec string_of_bdd bdd =
   | Leaf false -> "(0)"
   | Node (c1, b1, b2) -> "(" ^ Char.escaped c1 ^ " => " ^ (string_of_bdd b1) ^ " | " ^ (string_of_bdd b2) ^ ")"
 
-let string_of_op = function 
-  | Or -> "v"
-  | And -> "^"
-  | Implies -> "->"
-  | Iff -> "<->"
-  | Xor -> "x"
 
 let rec eval_not bdd = 
   match bdd with 
