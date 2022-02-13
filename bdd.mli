@@ -21,6 +21,7 @@ type bdd =
 
 val bdd_map : (bdd, bdd ref) Hashtbl.t
 val get_ref : bdd -> bdd ref
+val new_bdd : bdd -> bdd ref
 
 val string_of_op : bop -> string
 val string_of_bdd : bdd ref -> string
