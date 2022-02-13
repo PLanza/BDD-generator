@@ -17,13 +17,16 @@ type formula =
 
 type bdd =
   | Leaf of bool
-  | Node of char * bdd * bdd
+  | Node of char * bdd ref * bdd ref
+
+val bdd_map : (bdd, bdd ref) Hashtbl.t
+val get_ref : bdd -> bdd ref
 
 val string_of_op : bop -> string
-val string_of_bdd : bop -> string
+val string_of_bdd : bdd ref -> string
 
-val eval_not : bdd -> bdd
-val eval_op : bool -> bdd -> bop -> bdd
+val eval_not : bdd ref -> bdd ref
+val eval_op : bool -> bdd ref -> bop -> bdd ref
 
-val merge_bdds : bdd -> bop -> bdd -> bdd
-val create_bdd : formula -> bdd
+val merge_bdds : bdd ref -> bop -> bdd ref -> bdd ref
+val create_bdd : formula -> bdd ref
