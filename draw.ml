@@ -17,7 +17,7 @@ let new_node bdd_r node =
 
 (* Initializes graphics *)
 let _ = 
-	open_graph " 1024x720+448-180";
+	open_graph " 500x500";
 	set_color black;
 	set_line_width 2
 
@@ -93,14 +93,13 @@ let rec draw_bdd bdd_r (x,y) =
 				(x, y) )
 		in 
 			connect_nodes loc 
-				(draw_bdd b1 (((fst loc) - 50), ((snd loc) - 50)))
-				(draw_bdd b2 (((fst loc) + 50), ((snd loc) - 50)));
+				(draw_bdd b1 (((fst loc) - 50), ((snd loc) - 100)))
+				(draw_bdd b2 (((fst loc) + 50), ((snd loc) - 100)));
 			loc
 			
 (* Main function. Draws bdd and exits when Q is pressed *)
 let run bdd_r = 
-	Printf.printf "%s\n" (string_of_bdd bdd_r) ;
-	let _ = draw_bdd bdd_r (width / 2 , height - 50) in
+	let _ = draw_bdd bdd_r (width / 2 - 10, height - 50) in
 	loop_at_exit [Key_pressed] 
 		(fun s ->
 			if s.keypressed then

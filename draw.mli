@@ -7,6 +7,8 @@ val new_node : Bdd.bdd ref -> gNode -> gNode
 val width : int
 val height : int
 
+val dotted_lineto : int -> int -> unit
+
 val draw_node : gNode -> unit
 val connect_nodes : (int * int) -> (int * int) -> (int * int) -> unit
 

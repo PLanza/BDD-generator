@@ -31,3 +31,6 @@ val eval_op : bool -> bdd ref -> bop -> bdd ref
 
 val merge_bdds : bdd ref -> bop -> bdd ref -> bdd ref
 val create_bdd : formula -> bdd ref
+
+val remove_redundancy : bdd ref -> bdd ref
+val bdd_of_formula : formula -> bdd ref

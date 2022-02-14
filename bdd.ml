@@ -35,8 +35,11 @@ let get_ref bdd = Hashtbl.find bdd_map bdd
 
 (* Shortcut function for adding a BDD to the map *)
 let new_bdd bdd =
-  Hashtbl.add bdd_map bdd (ref bdd);
-  get_ref bdd
+	(* Checks that same bdd isn't added twice *)
+	try get_ref bdd with 
+	| Not_found -> 
+    Hashtbl.add bdd_map bdd (ref bdd);
+    get_ref bdd
 
 (* Functions for printing *)
 let string_of_op = function 
@@ -128,3 +131,30 @@ let rec create_bdd formula =
     | False -> merge_bdds (get_ref (Leaf false)) op (create_bdd f2)
     | f1 -> merge_bdds (create_bdd f1) op (create_bdd f2)
     )
+		
+(* Removes redundant nodes whose both branches point to the same node *)
+let rec remove_redundancy bdd = 
+	(* Returns Some if both its children are equal *)
+	let same n = 
+		(match !n with
+  	| Leaf b -> None
+  	| Node (c2, l, r) -> if l == r then Some l else None )
+	in 
+	(* Recursively removes node redundancy *)
+	match !bdd with
+	| Leaf b -> get_ref (Leaf b)
+	| Node (c, l, r) -> 
+		(match same l with
+		| Some l2 -> remove_redundancy (new_bdd (Node (c, l2, r)))
+		| None -> 
+			(match same r with
+  		| Some r2 -> remove_redundancy (new_bdd (Node (c, r2, r)))
+  		| None -> new_bdd (Node (c, remove_redundancy l, remove_redundancy r))
+			)
+		)
+
+let bdd_of_formula formula = remove_redundancy (create_bdd formula)
+
+
+
+
