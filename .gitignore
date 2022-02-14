@@ -31,3 +31,4 @@ _opam/
 # Eclipse project files
 .project
 .paths
+.settings/
