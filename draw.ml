@@ -35,8 +35,8 @@ let dotted_lineto x y =
 	    						int_of_float (5. *. float_of_int (y - current_y ()) /. g))
 	in
 	(* Signs to test if the end of the line has been reached *)
-	let sign_x = if x > current_x () then (>) else (<) in
-	let sign_y = if y > current_y () then (>) else (<) in
+	let sign_x = if dx > 0 then (>) else (<) in
+	let sign_y = if dy > 0 then (>) else (<) in
 	(* Draws the dotted segments specified by the coordinates *)
 	let rec aux (x1, y1) (x2, y2) =
 		if sign_x x x2 && sign_y y y2 then

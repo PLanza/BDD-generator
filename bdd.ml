@@ -100,7 +100,7 @@ let rec merge_bdds b1 op b2 =
   | Node (c1, b11, b12) -> 
     (match !b2 with 
     | Leaf true -> eval_op true b1 op
-    | Leaf false -> eval_op false b2 op
+    | Leaf false -> eval_op false b1 op
     | Node (c2, b21, b22) -> 
       if c1 < c2 then
         new_bdd (Node (c1, merge_bdds b11 op b2, merge_bdds b12 op b2))
@@ -125,10 +125,12 @@ let rec create_bdd formula =
       | Symbol c2 -> merge_bdds (create_bdd (Symbol c1)) op (create_bdd (Symbol c2))
       | True -> merge_bdds (create_bdd (Symbol c1)) op (get_ref (Leaf true))
       | False -> merge_bdds (create_bdd (Symbol c1)) op (get_ref (Leaf false))
+			| UOper (uop, f2) -> merge_bdds (create_bdd (Symbol c1)) op (eval_not (create_bdd f2))
       | f2 -> merge_bdds (create_bdd (Symbol c1)) op (create_bdd f2)
       )
     | True -> merge_bdds (get_ref (Leaf true)) op (create_bdd f2)
     | False -> merge_bdds (get_ref (Leaf false)) op (create_bdd f2)
+		| UOper (uop, f1) -> merge_bdds (eval_not (create_bdd f1)) op (create_bdd f2)
     | f1 -> merge_bdds (create_bdd f1) op (create_bdd f2)
     )
 		
