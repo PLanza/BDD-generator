@@ -49,6 +49,14 @@ let string_of_op = function
   | Iff -> "<->"
   | Xor -> "x"
 
+let rec string_of_formula formula =
+	match formula with
+	| Symbol c -> Char.escaped c
+	| UOper (op, f) -> "~" ^ (string_of_formula f)
+	| BOper (f1, op, f2) -> (string_of_formula f1) ^ (string_of_op op) ^ (string_of_formula f2)
+	| True -> "t"
+	| False -> "f"
+
 let rec string_of_bdd bdd =
   match !bdd with 
   | Leaf true -> "(1)"

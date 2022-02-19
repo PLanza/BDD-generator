@@ -24,6 +24,7 @@ val get_ref : bdd -> bdd ref
 val new_bdd : bdd -> bdd ref
 
 val string_of_op : bop -> string
+val string_of_formula : formula -> string
 val string_of_bdd : bdd ref -> string
 
 val eval_not : bdd ref -> bdd ref

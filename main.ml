@@ -1,21 +1,21 @@
 open Bdd;;
 open Draw;;
 
-(* ((-P & -Q & -R) | (P & Q) | (Q & R)) *)
-let f1 = BOper(BOper(
-  BOper(BOper(UOper(Not, Symbol 'P'), And, UOper(Not, Symbol 'Q')), And, UOper(Not, Symbol 'R')),
-  Or, 
-  BOper(Symbol 'P', And, Symbol 'Q')),
-  Or,
-  BOper(Symbol 'Q', And, Symbol 'R'))
-let b1 = bdd_of_formula f1
+let init_lexbuf file =
+	let in_chan =
+		try open_in file
+		with _ -> Error.complain ("\nCan't open file" ^ file)
+	in let lexbuf = Lexing.from_channel in_chan
+	in (file, lexbuf)
+
+let parse (file, lexbuf) =
+	let formula = Parser.start Lexer.token lexbuf
+	in let _ = Printf.printf "Parsed formula: %s\n" (Bdd.string_of_formula formula)
+	in (file, formula)
 
 let _ = 
-	Printf.printf "%s\n" (string_of_bdd b1);
-	run b1
-
-(* (P <-> Q) <-> R *)
-let f1 = BOper(BOper(Symbol 'P', Iff, Symbol 'Q'), Iff, Symbol 'R')
-let b1 = bdd_of_formula f1
-
-let _ = run b1
+	let (_, formula) = parse (init_lexbuf "./example.bdd") in
+	let bdd = bdd_of_formula formula in
+	Printf.printf "%s\n" (string_of_bdd bdd);
+	run bdd
+	
