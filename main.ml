@@ -10,12 +10,12 @@ let init_lexbuf file =
 
 let parse (file, lexbuf) =
 	let formula = Parser.start Lexer.token lexbuf
-	in let _ = Printf.printf "Parsed formula: %s\n" (Bdd.string_of_formula formula)
+	in let _ = print_endline ("Parsed formula: " ^ (Bdd.string_of_formula formula) ^ "%s\n")
 	in (file, formula)
 
 let _ = 
 	let (_, formula) = parse (init_lexbuf "./example.bdd") in
 	let bdd = bdd_of_formula formula in
-	Printf.printf "%s\n" (string_of_bdd bdd);
+	print_endline ("Final BDD: "^ (string_of_bdd bdd) ^ "\n");
 	run bdd
 	

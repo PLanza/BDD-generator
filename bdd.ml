@@ -43,17 +43,17 @@ let new_bdd bdd =
 
 (* Functions for printing *)
 let string_of_op = function 
-  | Or -> "v"
-  | And -> "^"
+  | Or -> "|"
+  | And -> "&"
   | Implies -> "->"
   | Iff -> "<->"
-  | Xor -> "x"
+  | Xor -> "^"
 
 let rec string_of_formula formula =
 	match formula with
 	| Symbol c -> Char.escaped c
-	| UOper (op, f) -> "~" ^ (string_of_formula f)
-	| BOper (f1, op, f2) -> (string_of_formula f1) ^ (string_of_op op) ^ (string_of_formula f2)
+	| UOper (op, f) -> "~(" ^ (string_of_formula f) ^ ")"
+	| BOper (f1, op, f2) -> "(" ^ (string_of_formula f1) ^ " " ^ (string_of_op op) ^ " " ^ (string_of_formula f2) ^ ")"
 	| True -> "t"
 	| False -> "f"
 
@@ -71,8 +71,8 @@ let rec eval_not bdd =
   | Node (c1, b1, b2) -> 
     new_bdd (Node (c1, eval_not b1, eval_not b2))
 
-(* Evaluates a binary operators *)
-let eval_op b bdd op =
+(* Evaluates the binary operators *)
+let eval_op b bdd op order =
   match op with 
   | Or -> 
     if b then
@@ -85,10 +85,16 @@ let eval_op b bdd op =
     else 
       get_ref (Leaf false)
   | Implies ->
-    if b then
-      bdd
+    if order == 1 then
+      if b then
+        bdd
+      else 
+        get_ref (Leaf true)
     else 
-      get_ref (Leaf true)
+      if b then
+        get_ref (Leaf true)
+      else 
+        eval_not bdd
   | Iff -> 
     if b then
       bdd
@@ -103,19 +109,22 @@ let eval_op b bdd op =
 (* Merge 2 BDDs by recursively applying the operators in symbol order *)
 let rec merge_bdds b1 op b2 =
   match !b1 with 
-  | Leaf true -> eval_op true b2 op
-  | Leaf false -> eval_op false b2 op
+  | Leaf true -> eval_op true b2 op 1
+  | Leaf false -> eval_op false b2 op 1
   | Node (c1, b11, b12) -> 
     (match !b2 with 
-    | Leaf true -> eval_op true b1 op
-    | Leaf false -> eval_op false b1 op
+    | Leaf true -> eval_op true b1 op 2
+    | Leaf false -> eval_op false b1 op 2
     | Node (c2, b21, b22) -> 
-      if c1 < c2 then
-        new_bdd (Node (c1, merge_bdds b11 op b2, merge_bdds b12 op b2))
-      else if c1 > c2 then
-        new_bdd (Node (c2, merge_bdds b21 op b1, merge_bdds b22 op b1))
-      else 
-        new_bdd (Node (c1, merge_bdds b11 op b21, merge_bdds b12 op b22))
+      let node = 
+        if c1 < c2 then
+          Node (c1, merge_bdds b11 op b2, merge_bdds b12 op b2)
+        else if c1 > c2 then
+          Node (c2, merge_bdds b1 op b21, merge_bdds b1 op b22)
+        else 
+          Node (c1, merge_bdds b11 op b21, merge_bdds b12 op b22)
+      in 
+        new_bdd node
     )
 
 (* Takes a formula and converts it to a BDD *)

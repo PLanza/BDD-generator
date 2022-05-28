@@ -28,7 +28,7 @@ val string_of_formula : formula -> string
 val string_of_bdd : bdd ref -> string
 
 val eval_not : bdd ref -> bdd ref
-val eval_op : bool -> bdd ref -> bop -> bdd ref
+val eval_op : bool -> bdd ref -> bop -> int -> bdd ref
 
 val merge_bdds : bdd ref -> bop -> bdd ref -> bdd ref
 val create_bdd : formula -> bdd ref
